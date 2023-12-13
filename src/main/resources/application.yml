@@ -30,90 +30,31 @@ info:
   version: 0.0.1
 
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default: # 기본 config 명
+        registerHealthIndicator: true  # Resilience4j의 Health Indicator 등록 여부
+        slidingWindowType: time_based  # 슬라이딩 윈도우 유형 (시간 기반)
+        slidingWindowSize: 10  # 슬라이딩 윈도우 크기
+        minimumNumberOfCalls: 10  # 최소 호출 횟수, 실패 비율을 계산하기 위한 최소 호출 횟수
+        slowCallRateThreshold: 100  # 느린 호출 비율 임계값
+        slowCallDurationThreshold: 60000  # 느린 호출로 간주되는 기준 응답 시간(ms)
+        failureRateThreshold: 50  # 실패 비율 임계값
+        permittedNumberOfCallsInHalfOpenState: 10  # Half-open 상태에서 허용되는 호출 횟수
+        waitDurationInOpenState: 10  # 서킷이 Open 상태에서 Half-open 상태로 변경되기 전 대기하는 시간 [s]
 
-resilience4j.circuitbreaker:
-  configs:
-    default:
-      slidingWindowSize: 4
-      permittedNumberOfCallsInHalfOpenState: 10
-      waitDurationInOpenState: 10000
-      failureRateThreshold: 60
-      eventConsumerBufferSize: 10
-      registerHealthIndicator: true
-    someShared:
-      slidingWindowSize: 3
-      permittedNumberOfCallsInHalfOpenState: 10
+    instances:
+      circuit-test-5000: # circuitbreaker name
+        baseConfig: default  # 기본 config 지정 (Ex-circuitbreaker.configs.{default})
+        slowCallDurationThreshold: 900  # 응답시간이 느린 것으로 판단할 기준 시간 [ms]
 
-  instances:
-    backendA:
-      registerHealthIndicator: true
-      slidingWindowSize: 100
-    backendB:
-      registerHealthIndicator: true
-      slidingWindowSize: 10
-      permittedNumberOfCallsInHalfOpenState: 3
-      slidingWindowType: TIME_BASED
-      minimumNumberOfCalls: 20
-      waitDurationInOpenState: 50s
-      failureRateThreshold: 50
-      eventConsumerBufferSize: 10
-      recordFailurePredicate: io.github.robwin.exception.RecordFailurePredicate
+      circuit-db-select-200:
+        baseConfig: default
+        slowCallDurationThreshold: 200  # 응답시간이 느린 것으로 판단할 기준 시간 [ms]
 
-resilience4j.retry:
-  instances:
-    backendA:
-      maxAttempts: 3
-      waitDuration: 10s
-      enableExponentialBackoff: true
-      exponentialBackoffMultiplier: 2
-      retryExceptions:
-        - org.springframework.web.client.HttpServerErrorException
-        - java.io.IOException
-      ignoreExceptions:
-        - io.github.robwin.exception.BusinessException
-    backendB:
-      maxAttempts: 3
-      waitDuration: 10s
-      retryExceptions:
-        - org.springframework.web.client.HttpServerErrorException
-        - java.io.IOException
-      ignoreExceptions:
-        - io.github.robwin.exception.BusinessException
+      circuit-db-select-300:
+        baseConfig: default
+        slowCallDurationThreshold: 300  # 응답시간이 느린 것으로 판단할 기준 시간 [ms]
 
-resilience4j.bulkhead:
-  instances:
-    backendA:
-      maxConcurrentCalls: 10
-    backendB:
-      maxWaitDuration: 10ms
-      maxConcurrentCalls: 20
-
-resilience4j.thread-pool-bulkhead:
-  instances:
-    backendC:
-      maxThreadPoolSize: 1
-      coreThreadPoolSize: 1
-      queueCapacity: 1
-      writableStackTraceEnabled: true
-
-resilience4j.ratelimiter:
-  instances:
-    backendA:
-      limitForPeriod: 10
-      limitRefreshPeriod: 1s
-      timeoutDuration: 0
-      registerHealthIndicator: true
-      eventConsumerBufferSize: 100
-    backendB:
-      limitForPeriod: 6
-      limitRefreshPeriod: 500ms
-      timeoutDuration: 3s
-
-resilience4j.timelimiter:
-  instances:
-    backendA:
-      timeoutDuration: 2s
-      cancelRunningFuture: true
-    backendB:
-      timeoutDuration: 1s
-      cancelRunningFuture: false
+        

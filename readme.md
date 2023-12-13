@@ -57,8 +57,33 @@ hystrix는 더 이상 개발이 진행되지 않고 maintenance 상태인 관계
 이용하여 서킷브레이커 패턴을 구현해보도록 하겠습니다.
 
 ## 2. Circuit Breaker란?
-Fault Tolerance System에서 말하는 서킷브레이커패턴에 대해서 알아보겠습니다. 서킷브레이커
-는 말 그대로 
+Fault Tolerance System에서 말하는 서킷브레이커패턴에 대해서 알아보겠습니다.
+Fault Tolerance(=장애 허용 시스템) 에서 사용되는 대표적인 패턴으로써 서비스에서
+타 서비스 호출 시 에러, 응답지연, 무응답, 일시적인 네트워크 문제 등을 요청이
+무작위로 실패하는 경우에 Circuit를 오픈하여 메세지가 다른 서비스로 전파되지
+못하도록 막고 미리 정의해놓은 Fallback Response를 보내어 서비스 장애가
+전파되지 않도록 하는 패턴 (대표적으로 MSA 환경에서 사용)입니다.
+
+- 서킷 브레이커 상태
+```mermaid
+flowchart LR
+    OPEN -- timed out --> HALF_OPEN
+    HALF_OPEN -- failed again --> OPEN
+    HALF_OPEN -- back to normal(request suceeded) --> CLOSED
+    CLOSED -- under threshold --> CLOSED
+    CLOSED -- exceeded threshold --> OPEN
+```
+1. CLOSE: 초기 상태이며 모든 접속은 평소와 같이 실행된다.
+2. OPEN: 에러율이 임계치를 넘어서면 OPEN 상태가 되며 모든접속은 차단된다(FAIL)
+   (실제 요청을 보내지 않고 바로 에러를 발생시킴)
+3. HALF_OPEN: 상태 중간에 한번 씩 요청을 보내 응답이 성공인지를 확인하는 상태이며
+OPEN 후 일정 시간이 지나면 HALF_OPEN 상태가 된다. 접속을 시도하여 성공하면
+CLOSE, 실패하면 OPEN으로 되돌아감
+
+용도: 어떤상황에서 서킷브레이커 패턴을 적용할 수 있을것인가?
+RateLimiter도 마찬가지.
+
+
 
 
 
@@ -67,7 +92,7 @@ Fault Tolerance System에서 말하는 서킷브레이커패턴에 대해서 알
 ---
 # References
 
-#### [1][hystrix github](https://github.com/Netflix/Hystrix)
+#### [1][hystrix GitHub](https://github.com/Netflix/Hystrix)
 #### [2][resilience4j docs](https://resilience4j.readme.io/)
 
 https://oliveyoung.tech/blog/2023-08-31/circuitbreaker-inventory-squad/ \

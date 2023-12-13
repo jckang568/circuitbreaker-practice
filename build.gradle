@@ -14,7 +14,7 @@ java {
 
 apply plugin: 'io.spring.dependency-management'
 
-//
+
 //configurations {
 //    mavenBom
 //}
@@ -32,14 +32,14 @@ repositories {
     }
 }
 
-ext {
-    set('springCloudVersion', "2022.0.4")
-    set('resilience4jVersion', "2.1.0")
-}
+//ext {
+//    set('springCloudVersion', "2022.0.4")
+//    set('resilience4jVersion', "2.1.0")
+//}
 
 dependencies {
     implementation platform("io.github.resilience4j:resilience4j-bom:2.1.0")
-    implementation 'org.springframework.boot:spring-boot-starter'
+    // implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -48,6 +48,10 @@ dependencies {
     implementation 'io.github.resilience4j:resilience4j-all'
     implementation 'io.github.resilience4j:resilience4j-reactor'
 
+    implementation      'org.projectlombok:lombok'
+    testImplementation  'org.projectlombok:lombok'
+    annotationProcessor     'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
